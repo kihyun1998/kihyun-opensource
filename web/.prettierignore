@@ -1,0 +1,7 @@
+.next
+out
+node_modules
+pnpm-lock.yaml
+public/demo
+src/app/wanted-sans.css
+public/fonts
