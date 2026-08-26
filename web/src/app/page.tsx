@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/site/theme-toggle';
 import {
   CATEGORY_LABEL,
   PACKAGES,
@@ -97,6 +98,7 @@ export default function Home() {
             <dt className="text-muted">라이선스</dt>
             <dd>MIT</dd>
           </span>
+          <ThemeToggle className="ml-auto" />
         </dl>
       </header>
 

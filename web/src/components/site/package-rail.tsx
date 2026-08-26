@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { CATEGORY_LABEL, canDemo, type Category, type Pkg } from '@/content/packages';
+import { ThemeToggle } from './theme-toggle';
 
 /**
  * 좌측 레일 — 29개를 다루는 네비게이션.
@@ -60,7 +61,7 @@ export function PackageRail({
         </span>
       </div>
 
-      <nav className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4">
+      <nav className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3">
         {groups.map((g) => (
           <div key={g.category} className="flex flex-col gap-0.5">
             <span className="text-label text-muted px-2 py-1 font-mono uppercase">
@@ -108,6 +109,11 @@ export function PackageRail({
           </p>
         )}
       </nav>
+
+      {/* 설정 자리. 언어 전환도 곧 여기 들어온다. */}
+      <div className="border-rule flex shrink-0 items-center border-t px-3 py-2.5">
+        <ThemeToggle />
+      </div>
     </div>
   );
 }

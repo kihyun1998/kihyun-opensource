@@ -79,6 +79,46 @@
   color-scheme: dark;
 }
 
+/*
+  테마에 따라 한쪽만 보이는 조각.
+
+  토글 버튼의 라벨을 JS 상태로 고르면 서버는 사용자의 선택도 OS 설정도 모르므로
+  hydration 이 어긋나고, 마운트 전 한 프레임이 비어 레이아웃이 튄다. 두 라벨을
+  모두 렌더해 두고 CSS 가 고르게 하면 그 문제가 통째로 사라진다 — 색 토큰이
+  이미 쓰는 방식과 같다.
+
+  세 상태를 그대로 따른다. data-theme 이 없으면 prefers-color-scheme 가 결정하고,
+  찍혀 있으면 그쪽이 이긴다.
+*/
+.theme-dark-only {
+  display: none;
+}
+.theme-light-only {
+  display: inline-flex;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .theme-dark-only {
+    display: inline-flex;
+  }
+  :root:not([data-theme='light']) .theme-light-only {
+    display: none;
+  }
+}
+
+:root[data-theme='dark'] .theme-dark-only {
+  display: inline-flex;
+}
+:root[data-theme='dark'] .theme-light-only {
+  display: none;
+}
+:root[data-theme='light'] .theme-dark-only {
+  display: none;
+}
+:root[data-theme='light'] .theme-light-only {
+  display: inline-flex;
+}
+
 @theme inline {
   --color-page: var(--page);
   --color-panel: var(--panel);

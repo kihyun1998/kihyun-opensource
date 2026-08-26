@@ -14,9 +14,25 @@ export const metadata: Metadata = {
   description: 'Flutter 패키지 소개와 라이브 데모.',
 };
 
+/**
+ * 저장된 테마를 첫 페인트 전에 찍는다.
+ *
+ * 정적 HTML 은 data-theme 없이 서빙된다. React 가 마운트해 localStorage 를
+ * 읽을 때까지 기다리면, OS 가 라이트인데 다크를 고른 사용자에게 흰 화면이
+ * 한 번 번쩍인다. 동기 스크립트라 파서를 잠깐 막는데, 그게 목적이다.
+ *
+ * 저장된 값이 없으면 아무것도 찍지 않는다 — 그러면 CSS 의
+ * prefers-color-scheme 가 결정한다. 초기값이 시스템인 것은 이 침묵 덕분이다.
+ */
+const STAMP_THEME = `try{var t=localStorage.theme;if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="ko" className={`${geistMono.variable} h-full`}>
+    // 위 스크립트가 <html> 의 속성을 바꾸므로 서버 마크업과 어긋난다. 의도된 것이다.
+    <html lang="ko" className={`${geistMono.variable} h-full`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: STAMP_THEME }} />
+      </head>
       <body className="min-h-full">{children}</body>
     </html>
   );

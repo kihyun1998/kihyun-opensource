@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { PACKAGES, canDemo } from '@/content/packages';
+import { ThemeToggle } from '@/components/site/theme-toggle';
 
 /**
  * 디자인 명세.
@@ -144,6 +145,10 @@ const RULES = [
   {
     rule: '데모는 클릭 후에 마운트한다',
     why: 'Flutter 웹은 CanvasKit(MB 단위)을 받아야 첫 프레임이 나온다. 그 비용을 초기 로딩에 태우면 LCP 를 잃는다.',
+  },
+  {
+    rule: '테마의 초기값은 시스템이다',
+    why: '저장된 선택이 없으면 data-theme 을 찍지 않아 prefers-color-scheme 가 결정한다. 한 번 누르면 그때부터는 명시적인 라이트/다크 토글이고, 시스템으로 되돌아가는 UI 는 없다. 토글 라벨도 CSS 가 고르므로 React 상태가 없다 — 상태를 JS 로 들면 서버가 사용자의 선택을 모르니 hydration 이 어긋난다.',
   },
   {
     rule: '런처는 순수 HTML 이다',
@@ -345,6 +350,17 @@ export default function DesignSpec() {
                   <span className="text-label text-muted pl-3 font-mono tabular-nums">v{r.v}</span>
                 </div>
               ))}
+            </div>
+          </Specimen>
+
+          <Specimen name="테마 토글" use="지금 상태를 보여주고, 누르면 뒤집는다" wide>
+            <div className="flex items-center gap-4 p-4">
+              <ThemeToggle />
+              <span className="text-small text-muted">
+                라벨은 CSS 가 고릅니다 — 두 라벨이 모두 HTML 에 있고
+                <code className="bg-chip rounded-mark mx-1 px-1 font-mono">.theme-*-only</code>가
+                한쪽만 보입니다.
+              </span>
             </div>
           </Specimen>
 

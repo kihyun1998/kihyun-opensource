@@ -5,3 +5,6 @@ pnpm-lock.yaml
 public/demo
 src/app/wanted-sans.css
 public/fonts
+
+# 생성물 — scripts/gen-packages.mjs 가 만든다. 포맷하면 재생성 때마다 diff 가 튄다.
+src/content/packages.ts
