@@ -9,7 +9,8 @@ scripts/   demo build tooling — package list generation, font subsetting, web 
 docs/      procedures, starting with ADDING-A-PACKAGE.md
 ```
 
-Packages themselves live in sibling repositories (`D:/github/<slug>/`), not here.
+Packages themselves live in sibling repositories (`../<slug>/`), not here.
+The scripts derive that from their own location, so no path is machine-specific.
 
 ## Ground rules
 

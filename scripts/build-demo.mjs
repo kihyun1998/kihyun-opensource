@@ -24,10 +24,15 @@
 
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = 'D:/github';
-const SITE = join(ROOT, 'kihyun-opensource', 'web');
+// 저장소 자신의 위치에서 뽑는다. 패키지들은 이 저장소의 형제로 놓여 있다.
+// 경로를 박아두면 다른 머신·다른 OS 에서 그대로 죽는다.
+const REPO = dirname(dirname(fileURLToPath(import.meta.url)));
+const ROOT = dirname(REPO);
+const SITE = join(REPO, 'web');
+const PYTHON = process.platform === 'win32' ? 'python' : 'python3';
 const KEEP_CANVASKIT = process.env.KEEP_CANVASKIT === '1';
 
 const args = process.argv.slice(2);
@@ -79,9 +84,8 @@ function buildOne(slug) {
     // 폰트는 example 이 통째로 싣는다. flutter_table_plus 는 Flutter 코드가
     // 6MB 인데 Pretendard 가 15.5MB 였다. 패키지 저장소를 고치는 일이라 옵트인이다.
     execFileSync(
-      'python',
-      [join(ROOT, 'kihyun-opensource', 'scripts', 'subset-example-fonts.py'),
-       join(ROOT, slug), '--apply'],
+      PYTHON,
+      [join(REPO, 'scripts', 'subset-example-fonts.py'), join(ROOT, slug), '--apply'],
       { stdio: 'inherit', shell: true, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
     );
   }
@@ -159,7 +163,7 @@ if (failures.length) {
 
 if (!dry && results.length) {
   console.log('\ndemoReady 를 갱신합니다...');
-  execFileSync('node', [join(ROOT, 'kihyun-opensource', 'scripts', 'gen-packages.mjs')], {
+  execFileSync('node', [join(REPO, 'scripts', 'gen-packages.mjs')], {
     stdio: 'inherit',
   });
 }

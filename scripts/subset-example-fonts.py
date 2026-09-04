@@ -19,7 +19,7 @@ example 이 영문뿐이면 그 전부가 낭비다 — 그런데 Flutter 웹은
 
 사용법
 ------
-    python scripts/subset-example-fonts.py D:/github/flutter_table_plus [--apply]
+    python3 scripts/subset-example-fonts.py ../flutter_table_plus [--apply]
 
 --apply 없이는 크기만 계산하고 파일을 쓰지 않는다.
 """

@@ -5,7 +5,7 @@
 
 ## 전제
 
-- 패키지가 `D:/github/<slug>/` 에 있고 `example/lib/` 이 있다
+- 패키지가 이 저장소의 형제 디렉터리(`../<slug>/`)에 있고 `example/lib/` 이 있다
 - example 이 **완성돼 있다** — 사이트에 올린다는 건 사람들이 들어온다는 뜻이다.
   반쯤 만든 화면을 보여줄 바에는 목록에 없는 편이 낫다
 - Flutter 3.29 이상 (wasm 빌드)
@@ -52,8 +52,8 @@ example 이 한글 폰트를 싣는다면 **여기가 가장 큰 절감처**다.
 `flutter_table_plus` 는 Flutter 코드가 6MB 인데 Pretendard 가 15.5MB 였다.
 
 ```bash
-python scripts/subset-example-fonts.py D:/github/<slug>          # 계산만
-python scripts/subset-example-fonts.py D:/github/<slug> --apply  # 적용
+python3 scripts/subset-example-fonts.py ../<slug>          # 계산만
+python3 scripts/subset-example-fonts.py ../<slug> --apply  # 적용
 ```
 
 소스를 훑어 실제로 쓰이는 CJK 글자만 남긴다. 라틴뿐이면 굵기당 2.6MB → 65KB.

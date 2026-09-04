@@ -19,12 +19,13 @@
  */
 
 import { mkdirSync, writeFileSync, existsSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const VERSION = 'v1.0.3';
 const BASE = `https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@${VERSION}/packages/wanted-sans/fonts/webfonts/variable/split`;
 
-const SITE = 'D:/github/kihyun-opensource/web';
+const SITE = join(dirname(dirname(fileURLToPath(import.meta.url))), 'web');
 const OUT_FONTS = join(SITE, 'public', 'fonts', 'wanted-sans');
 const OUT_CSS = join(SITE, 'src', 'app', 'wanted-sans.css');
 

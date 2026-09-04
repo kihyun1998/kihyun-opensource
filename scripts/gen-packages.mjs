@@ -1,9 +1,13 @@
 // pubspec.yaml 에서 패키지 목록을 뽑아 content/packages.ts 를 생성한다.
 // 범주(category)만 판단이 필요해서 여기에 표로 박아두고, 나머지는 전부 실물에서 읽는다.
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = 'D:/github';
+// 저장소 자신의 위치에서 뽑는다. 패키지들은 이 저장소의 형제로 놓여 있다.
+// 경로를 박아두면 다른 머신·다른 OS 에서 그대로 죽는다.
+const REPO = dirname(dirname(fileURLToPath(import.meta.url)));
+const ROOT = dirname(REPO);
 
 // ui      = Flutter 위젯. 웹에서 그대로 돈다 → 데모 가능
 // desktop = Windows/macOS 네이티브에 의존 → 웹 데모 불가
@@ -91,9 +95,7 @@ for (const [slug, category] of Object.entries(CATEGORY)) {
   const homepage = asUrl((yaml.match(/^homepage:\s*(.+)$/m)?.[1] ?? '').trim());
   const hasExample = existsSync(join(ROOT, slug, 'example', 'lib'));
   // demoReady 는 손으로 관리하지 않는다. 빌드를 복사했는지는 파일시스템이 안다.
-  const demoReady = existsSync(
-    join(ROOT, 'kihyun-opensource', 'web', 'public', 'demo', slug, 'index.html')
-  );
+  const demoReady = existsSync(join(REPO, 'web', 'public', 'demo', slug, 'index.html'));
   rows.push({ slug, category, version, description, repo: repo || homepage, hasExample, demoReady });
 }
 
@@ -159,5 +161,5 @@ ${body}
 export const getPackage = (slug: string) => PACKAGES.find((p) => p.slug === slug);
 `;
 
-writeFileSync('D:/github/kihyun-opensource/web/src/content/packages.ts', out, 'utf8');
+writeFileSync(join(REPO, 'web', 'src', 'content', 'packages.ts'), out, 'utf8');
 console.log(`생성됨: ${rows.length}개 (ui ${rows.filter((r) => r.category === 'ui').length}, desktop ${rows.filter((r) => r.category === 'desktop').length}, tool ${rows.filter((r) => r.category === 'tool').length})`);
