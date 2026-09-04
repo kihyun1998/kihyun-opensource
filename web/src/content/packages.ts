@@ -36,7 +36,7 @@ export const apiUrl = (p: Pkg) => `https://pub.dev/documentation/${p.slug}/lates
 export const PACKAGES: readonly Pkg[] = [
   {
     slug: 'flutter_table_plus',
-    version: '2.16.2',
+    version: '2.17.0',
     category: 'ui',
     description: 'A highly customizable and efficient table widget for Flutter, featuring synchronized scrolling, theming, sorting, selection, column reordering, hover buttons, and expandable rows.',
     repoUrl: 'https://github.com/kihyun1998/flutter_table_plus',
