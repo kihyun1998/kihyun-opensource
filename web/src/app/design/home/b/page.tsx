@@ -35,9 +35,7 @@ export default function VariantB() {
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-6 py-16">
         <header className="flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-display font-bold text-balance">
-              최근에 만든 것부터.
-            </h1>
+            <h1 className="text-display font-bold text-balance">최근에 만든 것부터.</h1>
             <ThemeToggle className="mt-2 shrink-0" />
           </div>
           <p className="text-body text-muted max-w-(--container-measure) text-pretty">

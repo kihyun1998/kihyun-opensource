@@ -22,7 +22,8 @@ const CARDS = [
     id: 'b',
     answers: '살아 있는가',
     keeps: '마지막 커밋 날짜가 앞에 온다. 방치된 저장소가 아니라는 증거가 첫 화면에 있다.',
-    costs: '분류가 사라져 "데스크톱 패키지만 보고 싶다" 는 요구를 못 받는다. 오래된 것이 아래로 밀려 억울해진다.',
+    costs:
+      '분류가 사라져 "데스크톱 패키지만 보고 싶다" 는 요구를 못 받는다. 오래된 것이 아래로 밀려 억울해진다.',
     upkeep: 'pubspec 에 날짜 한 줄만 더 읽으면 된다. 역시 전부 생성된다.',
   },
   {
@@ -43,8 +44,8 @@ export default function DesignHomeIndex() {
         <p className="text-body text-muted max-w-(--container-measure) text-pretty">
           세 시안 모두 실제 토큰·폰트·테마 토글을 그대로 쓰고, 형제 저장소에서 떠 온 실제 패키지{' '}
           {FIXTURES.length}개로 그립니다. 보이는 것이 곧 배포될 모습입니다. 지금 메인은 카드 3열
-          그리드에 패키지가 1개라 레이아웃 판단이 아예 불가능해서, 판단이 가능한 밀도를
-          만들어 두었습니다.
+          그리드에 패키지가 1개라 레이아웃 판단이 아예 불가능해서, 판단이 가능한 밀도를 만들어
+          두었습니다.
         </p>
       </header>
 
@@ -83,8 +84,8 @@ export default function DesignHomeIndex() {
       </ul>
 
       <p className="text-small text-muted border-rule border-t pt-5 text-pretty">
-        섞어도 됩니다. A 의 목록에 B 의 날짜를 얹고 상위 3개에만 C 의 한 줄을 붙이는 조합이
-        유지비 대비 가장 큽니다 — 직접 쓸 글이 14줄이 아니라 3줄로 줄어듭니다.
+        섞어도 됩니다. A 의 목록에 B 의 날짜를 얹고 상위 3개에만 C 의 한 줄을 붙이는 조합이 유지비
+        대비 가장 큽니다 — 직접 쓸 글이 14줄이 아니라 3줄로 줄어듭니다.
       </p>
     </main>
   );

@@ -1,13 +1,22 @@
-// pubspec.yaml 에서 패키지 목록을 뽑아 content/packages.ts 를 생성한다.
+// pub.dev 에서 패키지 목록을 뽑아 content/packages.ts 를 생성한다.
+//
+// 정본은 pub.dev 다. 버전·설명·저장소 링크·릴리스 날짜가 전부 거기서 온다.
+// 형제 저장소의 로컬 체크아웃은 pub.dev 가 알 수 없는 단 하나 — example 이
+// 있는지 — 에만 쓴다. 그래야 사이트의 정확도가 "그 저장소를 마지막으로 pull
+// 한 시점" 에 좌우되지 않는다. 유지 관리자가 `pub publish` 하는 것이 사이트가
+// 알아야 할 전부다.
+//
 // 범주(category)만 판단이 필요해서 여기에 표로 박아두고, 나머지는 전부 실물에서 읽는다.
-import { readFileSync, existsSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // 저장소 자신의 위치에서 뽑는다. 패키지들은 이 저장소의 형제로 놓여 있다.
 // 경로를 박아두면 다른 머신·다른 OS 에서 그대로 죽는다.
 const REPO = dirname(dirname(fileURLToPath(import.meta.url)));
 const ROOT = dirname(REPO);
+
+const PUB_API = 'https://pub.dev/api/packages';
 
 // ui      = Flutter 위젯. 웹에서 그대로 돈다 → 데모 가능
 // desktop = Windows/macOS 네이티브에 의존 → 웹 데모 불가
@@ -57,7 +66,10 @@ export const PENDING = {
   just_make_logo: 'tool',
 };
 
-/** description 은 인라인·접힘(>-)·따옴표 세 형태로 쓰여 있다. 전부 한 줄로 편다. */
+/**
+ * description 은 인라인·접힘(>-)·따옴표 세 형태로 쓰여 있다. 전부 한 줄로 편다.
+ * pub.dev 가 답하지 않는 패키지의 폴백 경로에서만 쓰인다.
+ */
 function readDescription(yaml) {
   const lines = yaml.split(/\r?\n/);
   const i = lines.findIndex((l) => /^description:/.test(l));
@@ -79,49 +91,127 @@ function readDescription(yaml) {
 }
 
 /** pubspec 에 없는 필드를 정규식이 옆 줄에서 주워오는 일이 있어 URL 만 통과시킨다. */
-const asUrl = (s) => (/^https?:\/\//.test(s) ? s : '');
+const asUrl = (s) => (/^https?:\/\//.test(String(s ?? '')) ? String(s) : '');
 
-const rows = [];
-for (const [slug, category] of Object.entries(CATEGORY)) {
-  const p = join(ROOT, slug, 'pubspec.yaml');
-  if (!existsSync(p)) {
-    console.error('missing', slug);
-    continue;
+/** 타임스탬프를 날짜로 자른다. 사이트가 보여주는 단위가 날짜다. */
+const asDate = (published) => String(published).slice(0, 10);
+
+/**
+ * 이 저장소의 유일한 테스트 seam.
+ *
+ * 바깥 세계 둘을 주입받는다:
+ *   fetchPackage(slug)  pub.dev 단일 패키지 조회. fetch 의 Response 를 돌려준다.
+ *   readLocal(slug)     { pubspec, hasExample, demoReady }
+ *
+ * 404 와 그 밖의 실패를 **여기서** 가른다. 404 는 "그 패키지는 정말 pub.dev 에
+ * 없다" 이고, 나머지는 "사실을 확인하지 못했다" 이다. 후자를 폴백으로 넘기면
+ * 낡은 데이터가 조용히 배포된다 — 눈에 보이는 실패보다 나쁘다.
+ *
+ * 404 응답의 본문은 JSON 이 아니라 XML 이므로 본문이 아니라 상태 코드로 가른다.
+ */
+export async function buildRows(categories, { fetchPackage, readLocal, onWarn = () => {} }) {
+  const rows = [];
+
+  for (const [slug, category] of Object.entries(categories)) {
+    const local = readLocal(slug);
+    const res = await fetchPackage(slug); // 네트워크 오류는 그대로 위로 던진다
+
+    let version;
+    let description;
+    let repo;
+    let published;
+
+    if (res.status === 404) {
+      if (!local.pubspec) {
+        onWarn(`${slug}: pub.dev 에도 로컬에도 없다. 목록에서 뺀다.`);
+        continue;
+      }
+      onWarn(`${slug}: pub.dev 에 없다. 로컬 pubspec 으로 대신하고 날짜는 비운다.`);
+      const yaml = local.pubspec;
+      version = (yaml.match(/^version:\s*(.+)$/m)?.[1] ?? '0.0.0').trim();
+      description = readDescription(yaml);
+      repo =
+        asUrl((yaml.match(/^repository:\s*(.+)$/m)?.[1] ?? '').trim()) ||
+        asUrl((yaml.match(/^homepage:\s*(.+)$/m)?.[1] ?? '').trim());
+      published = null;
+    } else if (!res.ok) {
+      throw new Error(`pub.dev 조회 실패 (${slug}): HTTP ${res.status}`);
+    } else {
+      const { latest } = await res.json();
+      version = latest.version;
+      published = asDate(latest.published);
+      description = String(latest.pubspec.description ?? '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      repo = asUrl(latest.pubspec.repository) || asUrl(latest.pubspec.homepage);
+    }
+
+    rows.push({
+      slug,
+      category,
+      version,
+      description,
+      repoUrl: repo || `https://github.com/kihyun1998/${slug}`,
+      hasExample: local.hasExample,
+      demoReady: local.demoReady,
+      published,
+    });
   }
-  const yaml = readFileSync(p, 'utf8');
-  const version = (yaml.match(/^version:\s*(.+)$/m)?.[1] ?? '0.0.0').trim();
-  const description = readDescription(yaml);
-  const repo = asUrl((yaml.match(/^repository:\s*(.+)$/m)?.[1] ?? '').trim());
-  const homepage = asUrl((yaml.match(/^homepage:\s*(.+)$/m)?.[1] ?? '').trim());
-  const hasExample = existsSync(join(ROOT, slug, 'example', 'lib'));
-  // demoReady 는 손으로 관리하지 않는다. 빌드를 복사했는지는 파일시스템이 안다.
-  const demoReady = existsSync(join(REPO, 'web', 'public', 'demo', slug, 'index.html'));
-  rows.push({ slug, category, version, description, repo: repo || homepage, hasExample, demoReady });
+
+  // 최근 릴리스가 먼저. 아직 배포되지 않은 것은 맨 뒤로 보내고, 같은 날은
+  // 이름으로 가른다 — 순서가 빌드마다 흔들리면 diff 가 거짓말을 한다.
+  rows.sort((a, b) => {
+    if (a.published && b.published) {
+      return b.published.localeCompare(a.published) || a.slug.localeCompare(b.slug);
+    }
+    if (a.published) return -1;
+    if (b.published) return 1;
+    return a.slug.localeCompare(b.slug);
+  });
+
+  return rows;
 }
 
-// ui 먼저, 그 안에서는 이름순. 목록의 기본 순서가 곧 사이트의 기본 순서다.
-const ORDER = { ui: 0, desktop: 1, tool: 2 };
-rows.sort((a, b) => ORDER[a.category] - ORDER[b.category] || a.slug.localeCompare(b.slug));
+/* ------------------------------------------------------------------ */
+/* 아래는 진짜 세계를 주입하는 껍데기. import 될 때는 돌지 않는다.       */
+/* ------------------------------------------------------------------ */
+
+const fetchPackage = (slug) => fetch(`${PUB_API}/${slug}`);
+
+const readLocal = (slug) => {
+  const pubspecPath = join(ROOT, slug, 'pubspec.yaml');
+  return {
+    pubspec: existsSync(pubspecPath) ? readFileSync(pubspecPath, 'utf8') : null,
+    hasExample: existsSync(join(ROOT, slug, 'example', 'lib')),
+    // demoReady 는 손으로 관리하지 않는다. 빌드를 복사했는지는 파일시스템이 안다.
+    demoReady: existsSync(join(REPO, 'web', 'public', 'demo', slug, 'index.html')),
+  };
+};
 
 const esc = (s) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
-const body = rows
-  .map(
-    (r) => `  {
+export function render(rows) {
+  const body = rows
+    .map(
+      (r) => `  {
     slug: '${r.slug}',
     version: '${r.version}',
     category: '${r.category}',
     description: '${esc(r.description)}',
-    repoUrl: '${r.repo || `https://github.com/kihyun1998/${r.slug}`}',
+    repoUrl: '${r.repoUrl}',
     hasExample: ${r.hasExample},
     demoReady: ${r.demoReady},
+    published: ${r.published ? `'${r.published}'` : 'null'},
   },`
-  )
-  .join('\n');
+    )
+    .join('\n');
 
-const out = `/**
- * 패키지 목록의 정본. scripts/gen-packages.mjs 가 pubspec.yaml 에서 생성한다.
+  return `/**
+ * 패키지 목록의 정본. scripts/gen-packages.mjs 가 pub.dev 에서 생성한다.
  * 손으로 고치지 말고 스크립트를 다시 돌릴 것 — 버전이 어긋나면 사이트가 거짓말을 한다.
+ *
+ * 순서도 생성물이다. 최근 릴리스가 먼저 오고, 아직 배포되지 않은 것이 뒤에 온다.
+ * 배열의 순서가 곧 화면의 순서이며, 사람이 정하지 않는다.
  *
  * 사이트가 아는 것은 여기까지다. README·API·가이드는 전부 pub.dev 와
  * 패키지 레포에 있고, 사이트는 링크만 건다.
@@ -140,6 +230,8 @@ export type Pkg = {
   hasExample: boolean;
   /** public/demo/<slug>/ 에 Flutter 웹 빌드를 실제로 복사했는지. */
   demoReady: boolean;
+  /** pub.dev 최신 릴리스 날짜(YYYY-MM-DD). 아직 배포하지 않았으면 null. */
+  published: string | null;
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
@@ -160,6 +252,19 @@ ${body}
 
 export const getPackage = (slug: string) => PACKAGES.find((p) => p.slug === slug);
 `;
+}
 
-writeFileSync(join(REPO, 'web', 'src', 'content', 'packages.ts'), out, 'utf8');
-console.log(`생성됨: ${rows.length}개 (ui ${rows.filter((r) => r.category === 'ui').length}, desktop ${rows.filter((r) => r.category === 'desktop').length}, tool ${rows.filter((r) => r.category === 'tool').length})`);
+const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isCli) {
+  const rows = await buildRows(CATEGORY, {
+    fetchPackage,
+    readLocal,
+    onWarn: (m) => console.warn(`  ! ${m}`),
+  });
+  writeFileSync(join(REPO, 'web', 'src', 'content', 'packages.ts'), render(rows), 'utf8');
+  const n = (c) => rows.filter((r) => r.category === c).length;
+  console.log(
+    `생성됨: ${rows.length}개 (ui ${n('ui')}, desktop ${n('desktop')}, tool ${n('tool')})`
+  );
+}

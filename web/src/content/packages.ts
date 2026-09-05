@@ -1,6 +1,9 @@
 /**
- * 패키지 목록의 정본. scripts/gen-packages.mjs 가 pubspec.yaml 에서 생성한다.
+ * 패키지 목록의 정본. scripts/gen-packages.mjs 가 pub.dev 에서 생성한다.
  * 손으로 고치지 말고 스크립트를 다시 돌릴 것 — 버전이 어긋나면 사이트가 거짓말을 한다.
+ *
+ * 순서도 생성물이다. 최근 릴리스가 먼저 오고, 아직 배포되지 않은 것이 뒤에 온다.
+ * 배열의 순서가 곧 화면의 순서이며, 사람이 정하지 않는다.
  *
  * 사이트가 아는 것은 여기까지다. README·API·가이드는 전부 pub.dev 와
  * 패키지 레포에 있고, 사이트는 링크만 건다.
@@ -19,6 +22,8 @@ export type Pkg = {
   hasExample: boolean;
   /** public/demo/<slug>/ 에 Flutter 웹 빌드를 실제로 복사했는지. */
   demoReady: boolean;
+  /** pub.dev 최신 릴리스 날짜(YYYY-MM-DD). 아직 배포하지 않았으면 null. */
+  published: string | null;
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
@@ -42,6 +47,7 @@ export const PACKAGES: readonly Pkg[] = [
     repoUrl: 'https://github.com/kihyun1998/flutter_table_plus',
     hasExample: true,
     demoReady: true,
+    published: '2026-09-04',
   },
 ];
 

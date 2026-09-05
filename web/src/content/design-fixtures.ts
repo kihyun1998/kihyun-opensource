@@ -25,7 +25,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_table_plus',
     version: '2.17.0',
     category: 'ui',
-    description: 'A highly customizable and efficient table widget for Flutter, featuring synchronized scrolling, theming, sorting, selection, column reordering, hover buttons, and expandable rows.',
+    description:
+      'A highly customizable and efficient table widget for Flutter, featuring synchronized scrolling, theming, sorting, selection, column reordering, hover buttons, and expandable rows.',
     hasExample: true,
     updated: '2026-09-04',
   },
@@ -33,7 +34,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_dropdown_button',
     version: '4.2.0',
     category: 'ui',
-    description: 'A highly customizable dropdown widget with overlay-based rendering, smart positioning, search, tooltips, and full control over appearance.',
+    description:
+      'A highly customizable dropdown widget with overlay-based rendering, smart positioning, search, tooltips, and full control over appearance.',
     hasExample: true,
     updated: '2026-08-17',
   },
@@ -41,7 +43,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'boring_avatars',
     version: '0.3.0',
     category: 'ui',
-    description: 'A bit-exact Dart port of boring-avatars. Same name in, same avatar out — with every upstream version selectable.',
+    description:
+      'A bit-exact Dart port of boring-avatars. Same name in, same avatar out — with every upstream version selectable.',
     hasExample: true,
     updated: '2026-08-15',
   },
@@ -49,7 +52,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_checkbox',
     version: '0.3.2',
     category: 'ui',
-    description: 'Customizable Flutter checkbox widgets with tristate, tile layout, hover ring, keyboard navigation, and smooth animations.',
+    description:
+      'Customizable Flutter checkbox widgets with tristate, tile layout, hover ring, keyboard navigation, and smooth animations.',
     hasExample: true,
     updated: '2026-08-09',
   },
@@ -57,7 +61,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_tweakcn_generator',
     version: '0.5.1',
     category: 'tool',
-    description: 'Converts tweakcn CSS themes into Flutter ThemeData with ColorScheme, ThemeExtension, Google Fonts, and light/dark mode support.',
+    description:
+      'Converts tweakcn CSS themes into Flutter ThemeData with ColorScheme, ThemeExtension, Google Fonts, and light/dark mode support.',
     hasExample: true,
     updated: '2026-08-04',
   },
@@ -65,7 +70,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_folderview',
     version: '0.11.2',
     category: 'ui',
-    description: 'A customizable Flutter widget for displaying hierarchical data in tree and folder views with rich theming support.',
+    description:
+      'A customizable Flutter widget for displaying hierarchical data in tree and folder views with rich theming support.',
     hasExample: true,
     updated: '2026-07-10',
   },
@@ -73,7 +79,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_password_input',
     version: '0.6.1',
     category: 'ui',
-    description: 'A customizable password text field widget with Caps Lock detection, visibility toggle, force English input mode, and comprehensive theming support.',
+    description:
+      'A customizable password text field widget with Caps Lock detection, visibility toggle, force English input mode, and comprehensive theming support.',
     hasExample: true,
     updated: '2026-07-10',
   },
@@ -81,7 +88,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'just_tooltip',
     version: '0.4.4',
     category: 'ui',
-    description: 'A lightweight, customizable Flutter tooltip with flexible placement, hover & tap triggers, programmatic control, and RTL support.',
+    description:
+      'A lightweight, customizable Flutter tooltip with flexible placement, hover & tap triggers, programmatic control, and RTL support.',
     hasExample: true,
     updated: '2026-07-10',
   },
@@ -89,7 +97,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_license_manager',
     version: '3.0.0',
     category: 'ui',
-    description: 'A comprehensive Flutter package for managing and displaying OSS license information with support for custom licenses and improved UI components.',
+    description:
+      'A comprehensive Flutter package for managing and displaying OSS license information with support for custom licenses and improved UI components.',
     hasExample: true,
     updated: '2026-07-02',
   },
@@ -97,7 +106,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_ime',
     version: '2.1.4',
     category: 'desktop',
-    description: 'A Flutter plugin for controlling IME (Input Method Editor) state. Switch to English keyboard, detect input source changes, and monitor Caps Lock state on Windows and macOS.',
+    description:
+      'A Flutter plugin for controlling IME (Input Method Editor) state. Switch to English keyboard, detect input source changes, and monitor Caps Lock state on Windows and macOS.',
     hasExample: true,
     updated: '2026-07-01',
   },
@@ -105,7 +115,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'just_font_scan',
     version: '0.3.0',
     category: 'desktop',
-    description: 'Scan system font families and their supported weights using platform-native APIs (DirectWrite on Windows, CoreText on macOS).',
+    description:
+      'Scan system font families and their supported weights using platform-native APIs (DirectWrite on Windows, CoreText on macOS).',
     hasExample: true,
     updated: '2026-04-22',
   },
@@ -113,7 +124,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'flutter_oss_manager',
     version: '2.1.0',
     category: 'tool',
-    description: 'A Flutter package and CLI for scanning, summarizing, and generating open-source license information for your project\'s dependencies.',
+    description:
+      "A Flutter package and CLI for scanning, summarizing, and generating open-source license information for your project's dependencies.",
     hasExample: true,
     updated: '2026-04-22',
   },
@@ -129,7 +141,8 @@ export const FIXTURES: readonly FixturePkg[] = [
     slug: 'just_color_picker',
     version: '0.1.0',
     category: 'ui',
-    description: 'A customizable HSV color picker with circular hue wheel, saturation-value panel, alpha slider, and HEX input. No external dependencies.',
+    description:
+      'A customizable HSV color picker with circular hue wheel, saturation-value panel, alpha slider, and HEX input. No external dependencies.',
     hasExample: true,
     updated: '2026-02-22',
   },

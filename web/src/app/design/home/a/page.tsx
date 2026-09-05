@@ -83,11 +83,17 @@ export default function VariantA() {
             판단하세요. 문서와 API 는 pub.dev 에 있습니다.
           </p>
           <p className="text-small text-muted font-mono">
-            <a href="https://github.com/kihyun1998" className="hover:text-ink underline-offset-4 hover:underline">
+            <a
+              href="https://github.com/kihyun1998"
+              className="hover:text-ink underline-offset-4 hover:underline"
+            >
               github.com/kihyun1998
             </a>
             <span className="text-muted/40 mx-2">·</span>
-            <a href="https://pub.dev/publishers" className="hover:text-ink underline-offset-4 hover:underline">
+            <a
+              href="https://pub.dev/publishers"
+              className="hover:text-ink underline-offset-4 hover:underline"
+            >
               pub.dev
             </a>
           </p>
