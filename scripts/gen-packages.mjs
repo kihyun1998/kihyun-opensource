@@ -138,12 +138,20 @@ export async function buildRows(categories, { fetchPackage, readLocal, onWarn = 
       throw new Error(`pub.dev 조회 실패 (${slug}): HTTP ${res.status}`);
     } else {
       const { latest } = await res.json();
+      // 200 을 받았다는 것이 우리가 기대하는 모양이라는 뜻은 아니다. 검증하지
+      // 않으면 version: 'undefined' 나 published: 'undefine' 이 날짜인 척
+      // 정렬되어 사이트에 실린다 — 조용히 잘못된 값이 정확히 이 경로로 온다.
+      if (!latest?.version || !latest?.published) {
+        throw new Error(
+          `pub.dev 응답 모양이 다르다 (${slug}): latest.version 과 latest.published 가 필요하다`
+        );
+      }
       version = latest.version;
       published = asDate(latest.published);
-      description = String(latest.pubspec.description ?? '')
+      description = String(latest.pubspec?.description ?? '')
         .replace(/\s+/g, ' ')
         .trim();
-      repo = asUrl(latest.pubspec.repository) || asUrl(latest.pubspec.homepage);
+      repo = asUrl(latest.pubspec?.repository) || asUrl(latest.pubspec?.homepage);
     }
 
     rows.push({

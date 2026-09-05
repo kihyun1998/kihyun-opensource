@@ -19,6 +19,11 @@ import { CATEGORY_LABEL, PACKAGES, canDemo, pubUrl, type Pkg } from '@/content/p
  * 정렬하면 정본이 둘이 된다.
  */
 
+/** published 는 YYYY-MM-DD 다. 오프셋이 여기저기 흩어지지 않도록 이름을 준다. */
+const yearOf = (published: string | null) => published?.slice(0, 4) ?? null;
+const monthDayOf = (published: string | null) =>
+  published ? published.slice(5).replace('-', '.') : '––';
+
 /** 웹에서 돌 수 없는 이유. 빈 자리나 "준비 중" 을 보여주지 않는다 — 준비의 문제가 아니다. */
 const CANNOT_RUN: Record<Pkg['category'], string> = {
   ui: 'example 없음',
@@ -32,9 +37,12 @@ const CANNOT_RUN: Record<Pkg['category'], string> = {
  */
 function withYearMarks(packages: readonly Pkg[]) {
   return packages.map((pkg, i) => {
-    const year = pkg.published?.slice(0, 4) ?? null;
-    const prev = i === 0 ? undefined : (packages[i - 1].published?.slice(0, 4) ?? null);
-    return { pkg, year, showYear: i === 0 || year !== prev };
+    const year = yearOf(pkg.published);
+    const first = i === 0;
+    const changed = !first && year !== yearOf(packages[i - 1].published);
+    // 위 여백은 목록 첫 줄에만 없다. CSS 의 :first-child 로는 판별할 수 없다 —
+    // 이 구분선은 언제나 <li> 의 첫 자식이라 그 선택자가 늘 이긴다.
+    return { pkg, year, showYear: first || changed, spaced: changed };
   });
 }
 
@@ -42,7 +50,7 @@ function Entry({ pkg, playable }: { pkg: Pkg; playable: boolean }) {
   const body = (
     <>
       <time className="text-label text-muted w-12 shrink-0 pt-1 font-mono tabular-nums">
-        {pkg.published ? pkg.published.slice(5).replace('-', '.') : '––'}
+        {monthDayOf(pkg.published)}
       </time>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-baseline gap-2.5">
@@ -95,20 +103,22 @@ export default function Home() {
       </header>
 
       <ol className="flex flex-col">
-        {rows.map(({ pkg, year, showYear }) => (
+        {rows.map(({ pkg, year, showYear, spaced }) => (
           <li key={pkg.slug}>
             {showYear && (
-              <div className="border-rule text-label text-muted mt-6 border-t pt-2 font-mono tabular-nums first:mt-0">
+              <div
+                className={`border-rule text-label text-muted border-t pt-2 font-mono tabular-nums ${spaced ? 'mt-6' : ''}`}
+              >
                 {year ?? '미배포'}
               </div>
             )}
-            <Entry pkg={pkg} playable={canDemo(pkg) && pkg.demoReady} />
+            <Entry pkg={pkg} playable={canDemo(pkg)} />
           </li>
         ))}
       </ol>
 
       <footer className="border-rule text-small text-muted flex items-center justify-between border-t pt-6">
-        <span>© 2026 kihyun · 전부 MIT</span>
+        <span>© 2026 kihyun</span>
         <span className="flex gap-4 font-mono">
           <a href="https://pub.dev/publishers/kihyun1998.com/packages" className="hover:text-ink">
             pub.dev ↗

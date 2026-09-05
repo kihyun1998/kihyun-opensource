@@ -151,13 +151,16 @@ describe('buildRows — 로컬에서만 오는 것', () => {
           without: pubdev({ version: '1.0.0', published: '2026-01-01T00:00:00Z' }),
         },
         disk: {
-          with_demo: local({ hasExample: true, demoReady: true }),
+          // 두 필드에 같은 값을 주면 서로 맞바꿔도 테스트가 눈치채지 못한다.
+          // example 은 있는데 데모를 아직 빌드하지 않은 상태가 실제로 흔하고,
+          // 그 조합이라야 두 값이 구별된다.
+          with_demo: local({ hasExample: true, demoReady: false }),
           without: local({ hasExample: false, demoReady: false }),
         },
       })
     );
 
-    expect(rows[0]).toMatchObject({ slug: 'with_demo', hasExample: true, demoReady: true });
+    expect(rows[0]).toMatchObject({ slug: 'with_demo', hasExample: true, demoReady: false });
     expect(rows[1]).toMatchObject({ slug: 'without', hasExample: false, demoReady: false });
   });
 });
@@ -190,6 +193,38 @@ describe('buildRows — 실패의 처리', () => {
     await expect(
       buildRows({ any_pkg: 'ui' }, harness({ remote: { any_pkg: serverError } }))
     ).rejects.toThrow(/any_pkg/);
+  });
+
+  it('200 인데 응답 모양이 다르면 빌드를 세운다 — 버전이 없을 때', async () => {
+    // 200 을 받았다고 해서 우리가 기대하는 모양이라는 보장은 없다.
+    // 검증하지 않으면 version: 'undefined' 가 그대로 사이트에 실린다.
+    await expect(
+      buildRows(
+        { p: 'ui' },
+        harness({
+          remote: {
+            p: found({ latest: { published: '2026-01-01T00:00:00Z', pubspec: { description: 'd' } } }),
+          },
+        })
+      )
+    ).rejects.toThrow(/응답 모양이 다르다 \(p\)/);
+  });
+
+  it('200 인데 응답 모양이 다르면 빌드를 세운다 — 날짜가 없을 때', async () => {
+    await expect(
+      buildRows(
+        { p: 'ui' },
+        harness({
+          remote: { p: found({ latest: { version: '1.0.0', pubspec: { description: 'd' } } }) },
+        })
+      )
+    ).rejects.toThrow(/응답 모양이 다르다 \(p\)/);
+  });
+
+  it('200 인데 latest 자체가 없으면 빌드를 세운다', async () => {
+    await expect(
+      buildRows({ p: 'ui' }, harness({ remote: { p: found({ name: 'p' }) } }))
+    ).rejects.toThrow(/응답 모양이 다르다 \(p\)/);
   });
 
   it('네트워크 오류는 빌드를 세운다', async () => {

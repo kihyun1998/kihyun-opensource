@@ -8,7 +8,11 @@
 - 패키지가 이 저장소의 형제 디렉터리(`../<slug>/`)에 있고 `example/lib/` 이 있다
 - example 이 **완성돼 있다** — 사이트에 올린다는 건 사람들이 들어온다는 뜻이다.
   반쯤 만든 화면을 보여줄 바에는 목록에 없는 편이 낫다
+- **패키지가 pub.dev 에 이미 배포돼 있다** — 버전·설명·릴리스 날짜의 정본이
+  거기다. 아직 배포 전이라면 목록에 올려도 로컬 pubspec 으로 대신 채워지고
+  날짜 자리가 빈다
 - Flutter 3.29 이상 (wasm 빌드)
+- 네트워크 — 목록 생성이 pub.dev 를 조회한다
 - Python + fontTools (`pip install fonttools`) — 폰트 정리에만 필요
 
 ---
@@ -40,9 +44,35 @@ const CATEGORY = {
 node scripts/gen-packages.mjs
 ```
 
-`web/src/content/packages.ts` 가 pubspec.yaml 에서 다시 생성된다.
-**이 파일은 손으로 고치지 않는다.** 버전·설명·repository 가 전부 pubspec 에서 오고,
-손으로 고치면 릴리스 때 사이트가 거짓말을 하게 된다.
+`web/src/content/packages.ts` 가 pub.dev 에서 다시 생성된다.
+**이 파일은 손으로 고치지 않는다.** 버전·설명·repository·릴리스 날짜가 전부
+pub.dev 에서 오고, 손으로 고치면 릴리스 때 사이트가 거짓말을 하게 된다.
+
+**목록의 순서도 생성물이다.** 최근 릴리스가 먼저 오고 아직 배포되지 않은 것이
+뒤에 온다. 배열 순서가 곧 메인 화면의 순서이며, 사람이 정하지 않는다.
+
+### 왜 로컬 pubspec 이 아니라 pub.dev 인가
+
+로컬을 읽으면 사이트의 정확도가 **그 저장소를 마지막으로 pull 한 시점**에
+달린다. 실제로 어긋나 있었다 — `flutter_ime` 는 로컬 체크아웃이 24커밋 밀려
+pubspec 에 2.1.4 가 적혀 있는데 pub.dev 에는 3.0.0 이 올라가 있었다. 그 상태로
+목록에 옮겼다면 사이트가 조용히 낮은 버전을 말했을 것이다.
+
+로컬 형제 저장소는 이제 pub.dev 가 알 수 없는 단 하나 — `example/lib` 이
+있는지 — 에만 쓰인다.
+
+### 실패했을 때
+
+| 상황 | 동작 |
+|---|---|
+| pub.dev 에 없음 (404) | 경고 후 로컬 pubspec 으로 채우고 날짜는 비운다 |
+| pub.dev 에도 로컬에도 없음 | 경고 후 **목록에서 뺀다** |
+| 5xx · 네트워크 오류 | **생성을 중단한다** |
+| 200 인데 응답 모양이 다름 | **생성을 중단한다** |
+
+404 와 나머지를 가르는 기준이 있다. 404 는 "그 패키지는 정말 pub.dev 에 없다"
+이고, 나머지는 "사실을 확인하지 못했다" 이다. 후자를 폴백으로 넘기면 낡은
+데이터가 조용히 배포된다 — 눈에 보이는 실패보다 나쁘다.
 
 ---
 
@@ -166,7 +196,8 @@ Vercel 은 빌드 환경에 Flutter 가 없으므로 다음 중 하나를 골라
 ## 관련 파일
 
 ```
-scripts/gen-packages.mjs           pubspec → packages.ts
+scripts/gen-packages.mjs           pub.dev → packages.ts (+ 로컬은 example 유무만)
+scripts/gen-packages.test.mjs      위 스크립트의 변환부 테스트 (pnpm test)
 scripts/subset-example-fonts.py    example 폰트 부분집합
 scripts/build-demo.mjs             데모 빌드 + 정리 + 배치
 scripts/fetch-wanted-sans.mjs      사이트 본문 폰트 (사이트용, 패키지와 무관)
