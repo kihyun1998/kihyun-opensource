@@ -243,5 +243,4 @@ scripts/subset-example-fonts.py    example 폰트 부분집합
 scripts/build-demo.mjs             데모 빌드 + 정리 + 배치
 scripts/fetch-wanted-sans.mjs      사이트 본문 폰트 (사이트용, 패키지와 무관)
 web/src/content/packages.ts        생성물 — 손대지 말 것
-web/src/content/design-fixtures.ts /design 프로토타입 전용 고정 데이터
 ```
