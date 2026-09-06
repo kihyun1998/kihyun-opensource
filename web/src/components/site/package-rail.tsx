@@ -46,13 +46,13 @@ export function PackageRail({
     <div className="flex h-full flex-col gap-4">
       <div className="flex flex-col gap-3 px-3 pt-3">
         <Link href="/" className="text-label text-muted hover:text-ink font-mono uppercase">
-          ← 전체 목록
+          ← All packages
         </Link>
 
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="패키지 검색"
+          placeholder="Search packages"
           className="border-rule bg-panel rounded-control text-small placeholder:text-muted focus:border-ink w-full border px-2.5 py-1.5 outline-none"
         />
 
@@ -86,7 +86,7 @@ export function PackageRail({
                       className={`size-1.5 shrink-0 rounded-full ${
                         playable ? 'bg-emerald-500' : 'bg-rule'
                       }`}
-                      title={playable ? '웹 데모 있음' : '웹에서 실행 불가'}
+                      title={playable ? 'Playable in the browser' : 'Cannot run in a browser'}
                     />
                     <span
                       className={`text-small truncate font-mono ${active ? 'font-semibold' : ''}`}
@@ -104,9 +104,7 @@ export function PackageRail({
         ))}
 
         {groups.length === 0 && (
-          <p className="text-small text-muted px-2 py-4">
-            &lsquo;{q}&rsquo; 에 맞는 패키지가 없습니다.
-          </p>
+          <p className="text-small text-muted px-2 py-4">No packages match &lsquo;{q}&rsquo;.</p>
         )}
       </nav>
 

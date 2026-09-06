@@ -39,7 +39,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      title="테마 전환"
+      title="Toggle theme"
       className={`border-rule rounded-control text-label hover:bg-chip duration-(--duration-quick) inline-flex items-center gap-1.5 border px-2 py-1 font-mono uppercase transition-colors ${className}`}
     >
       {/* 두 라벨을 모두 렌더한다. 보이는 쪽은 CSS 가 고른다. */}
@@ -51,7 +51,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
         <span aria-hidden>☾</span>
         <span>Dark</span>
       </span>
-      <span className="sr-only">테마 전환</span>
+      <span className="sr-only">Toggle theme</span>
     </button>
   );
 }

@@ -26,9 +26,9 @@ const monthDayOf = (published: string | null) =>
 
 /** 웹에서 돌 수 없는 이유. 빈 자리나 "준비 중" 을 보여주지 않는다 — 준비의 문제가 아니다. */
 const CANNOT_RUN: Record<Pkg['category'], string> = {
-  ui: 'example 없음',
-  desktop: '네이티브 의존',
-  tool: 'CLI 도구',
+  ui: 'no example',
+  desktop: 'native only',
+  tool: 'command line',
 };
 
 /**
@@ -57,7 +57,7 @@ function Entry({ pkg, playable }: { pkg: Pkg; playable: boolean }) {
           <span className="text-small font-mono font-semibold">{pkg.slug}</span>
           <span className="text-label text-muted font-mono tabular-nums">v{pkg.version}</span>
           <span className="text-label text-muted group-hover:text-ink ml-auto shrink-0 font-mono">
-            {playable ? '실행 →' : 'pub.dev ↗'}
+            {playable ? 'Run →' : 'pub.dev ↗'}
           </span>
         </div>
         <p className="text-small text-muted text-pretty">{pkg.description}</p>
@@ -102,7 +102,7 @@ export default function Home() {
         </p>
         {/* 아래는 문장이 아니라 화면 메타데이터다 — 정렬 기준과 조작 안내. */}
         <p className="text-small text-muted font-mono">
-          최근에 릴리스한 순서입니다. 위젯은 눌러볼 수 있습니다.
+          Most recent releases first. Widgets are playable.
         </p>
       </header>
 
@@ -113,7 +113,7 @@ export default function Home() {
               <div
                 className={`border-rule text-label text-muted border-t pt-2 font-mono tabular-nums ${spaced ? 'mt-6' : ''}`}
               >
-                {year ?? '미배포'}
+                {year ?? 'Unreleased'}
               </div>
             )}
             <Entry pkg={pkg} playable={canDemo(pkg)} />

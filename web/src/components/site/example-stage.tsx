@@ -27,17 +27,17 @@ function LiveDot() {
 function NotPlayable({ pkg }: { pkg: Pkg }) {
   const reason =
     pkg.category === 'desktop'
-      ? 'Windows · macOS 네이티브에 직접 붙는 패키지라 브라우저에서는 실행할 수 없습니다.'
+      ? 'Binds directly to Windows and macOS native APIs. It cannot run in a browser.'
       : pkg.category === 'tool'
-        ? '터미널에서 도는 CLI 도구라 브라우저에 띄울 화면이 없습니다.'
-        : 'example 이 아직 없습니다.';
+        ? 'A command-line tool. There is no screen to put in a browser.'
+        : 'No example app yet.';
 
   return (
     <div className="bg-chip flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
-      <span className="text-label text-muted font-mono uppercase">웹 데모 없음</span>
+      <span className="text-label text-muted font-mono uppercase">Not playable</span>
       <p className="text-body max-w-md">{reason}</p>
       <p className="text-small text-muted max-w-md">
-        준비 중이라서가 아닙니다 — 이 패키지의 쓸모는 브라우저 밖에 있습니다.
+        Not a matter of readiness — this package is useful outside the browser.
       </p>
       <div className="text-small mt-2 flex flex-wrap justify-center gap-4 font-mono">
         <a href={pubUrl(pkg)} className="hover:text-ink underline-offset-4 hover:underline">
@@ -47,7 +47,7 @@ function NotPlayable({ pkg }: { pkg: Pkg }) {
           GitHub ↗
         </a>
         <a href={apiUrl(pkg)} className="hover:text-ink underline-offset-4 hover:underline">
-          API 레퍼런스 ↗
+          API reference ↗
         </a>
       </div>
     </div>
@@ -72,10 +72,10 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
         {running ? <LiveDot /> : <span className="bg-muted size-1.5 rounded-full" />}
         <span className="text-muted">
           {!playable
-            ? '실행 불가'
+            ? 'Not playable'
             : running
               ? 'Running by Flutter · WebAssembly'
-              : 'Flutter · 대기 중'}
+              : 'Flutter · idle'}
         </span>
 
         <span className="text-muted ml-auto flex gap-3">
@@ -84,7 +84,7 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
             disabled={!running}
             className={running ? 'hover:text-ink' : 'cursor-not-allowed opacity-40'}
           >
-            ⛶ <span className="hidden sm:inline">전체화면</span>
+            ⛶ <span className="hidden sm:inline">Fullscreen</span>
           </button>
           <a
             href={pkg.demoReady ? demoUrl : undefined}
@@ -94,7 +94,7 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
               running && pkg.demoReady ? 'hover:text-ink' : 'cursor-not-allowed opacity-40'
             }
           >
-            ↗ <span className="hidden sm:inline">새 탭</span>
+            ↗ <span className="hidden sm:inline">New tab</span>
           </a>
         </span>
       </div>
@@ -111,13 +111,13 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
             <span className="duration-(--duration-quick) flex size-14 items-center justify-center rounded-full border border-white/45 transition-transform group-hover:scale-110">
               ▶
             </span>
-            <span className="text-small font-medium">데모 실행</span>
-            <span className="text-label font-mono opacity-60">~1.3 MB · 엔진 내려받기</span>
+            <span className="text-small font-medium">Run the demo</span>
+            <span className="text-label font-mono opacity-60">~1.3 MB engine download</span>
           </button>
         ) : pkg.demoReady ? (
           <iframe
             src={demoUrl}
-            title={`${pkg.slug} 라이브 데모`}
+            title={`${pkg.slug} live demo`}
             className="block h-full w-full border-0"
             sandbox="allow-scripts allow-same-origin allow-popups allow-downloads"
             allow="clipboard-write; fullscreen"
@@ -126,7 +126,7 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
           <div className="relative h-full">
             <FlutterStage className="h-full w-full" />
             <span className="text-label absolute right-3 bottom-3 rounded bg-black/70 px-2 py-1 font-mono text-white/80">
-              목업 · public/demo/{pkg.slug}/ 비어 있음
+              mockup · public/demo/{pkg.slug}/ is empty
             </span>
           </div>
         )}

@@ -11,7 +11,7 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 
 export const metadata: Metadata = {
   title: 'kihyun · open source',
-  description: 'Flutter 패키지 소개와 라이브 데모.',
+  description: 'Open source packages by kihyun1998, with live demos you can try in the browser.',
 };
 
 /**
@@ -29,7 +29,7 @@ const STAMP_THEME = `try{var t=localStorage.theme;if(t==='light'||t==='dark')doc
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     // 위 스크립트가 <html> 의 속성을 바꾸므로 서버 마크업과 어긋난다. 의도된 것이다.
-    <html lang="ko" className={`${geistMono.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`${geistMono.variable} h-full`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: STAMP_THEME }} />
       </head>

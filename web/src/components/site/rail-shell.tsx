@@ -41,7 +41,7 @@ export function RailShell({
       {/* ------------------------------------------------------ 모바일 바 */}
       <div className="border-rule text-label flex shrink-0 items-center gap-3 border-b px-4 py-2.5 font-mono md:hidden">
         <Link href="/" className="text-muted hover:text-ink">
-          ← 목록
+          ← List
         </Link>
         <button
           type="button"
@@ -49,7 +49,7 @@ export function RailShell({
           className="border-rule rounded-control hover:bg-chip ml-auto border px-2.5 py-1"
           aria-expanded={open}
         >
-          패키지 <span className="text-muted tabular-nums">{packages.length}</span> ▾
+          Packages <span className="text-muted tabular-nums">{packages.length}</span> ▾
         </button>
       </div>
 
@@ -63,7 +63,7 @@ export function RailShell({
         <div className="fixed inset-0 z-50 flex md:hidden">
           <button
             type="button"
-            aria-label="닫기"
+            aria-label="Close"
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/40"
           />
@@ -74,7 +74,7 @@ export function RailShell({
           >
             <div className="border-rule text-label flex shrink-0 items-center justify-between border-b px-3 py-2.5 font-mono">
               <span className="text-muted">
-                <span className="tabular-nums">{playable}</span> / {packages.length} 데모 있음
+                <span className="tabular-nums">{playable}</span> / {packages.length} playable
               </span>
               <button type="button" onClick={() => setOpen(false)} className="hover:text-ink">
                 ✕

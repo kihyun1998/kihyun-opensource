@@ -18,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<'/play/[slug]'>): Promise<Metadata> {
   const pkg = getPackage((await params).slug);
   if (!pkg) return {};
-  return { title: `${pkg.slug} · 라이브 데모`, description: pkg.description };
+  return { title: `${pkg.slug} · live demo`, description: pkg.description };
 }
 
 export default async function PlayPage({ params }: PageProps<'/play/[slug]'>) {

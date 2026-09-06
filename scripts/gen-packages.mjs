@@ -247,9 +247,9 @@ export type Pkg = {
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
-  ui: '위젯',
-  desktop: '데스크톱',
-  tool: '도구',
+  ui: 'Widget',
+  desktop: 'Desktop',
+  tool: 'Tool',
 };
 
 /** 웹 데모를 띄울 수 있는가. desktop/tool 은 원리적으로 불가능하다. */
