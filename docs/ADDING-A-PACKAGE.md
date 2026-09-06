@@ -158,20 +158,30 @@ KEEP_CANVASKIT=1 node scripts/build-demo.mjs <slug>
 ## 4. 확인
 
 ```bash
-cd web && pnpm dev
+cd web
+pnpm exec next typegen && pnpm exec tsc --noEmit   # 라우트 타입은 생성물이다
+pnpm exec eslint src
+pnpm test
+pnpm dev
 ```
 
-- `http://localhost:3000/` — 목록에 카드가 떴는지
-- `http://localhost:3000/play/<slug>/` — **데모 실행**을 눌러 실제로 도는지
+- `http://localhost:3000/` — 타임라인에 줄이 하나 늘었는지, 날짜가 pub.dev
+  릴리스 날짜와 같은지
+- `http://localhost:3000/play/<slug>/` — **Run the demo** 를 눌러 실제로 도는지
+- 데모가 없는 범주라면 **왜 못 도는지**가 화면에 나오는지 (빈 자리가 아니라)
 - 브라우저 폭을 좁혀 모바일 서랍이 뜨는지
 - OS 테마를 바꿔 라이트/다크 양쪽을 보는지
+- **화면에 한국어가 없는지** — 사이트는 영어 하나로 간다
 
 렌더러가 CDN 에서 오는지는 개발자도구 Network 에서
 `gstatic.com/flutter-canvaskit/...` 요청으로 확인한다.
 
+`pnpm dev` 로 확인하는 것은 눈으로 볼 것들뿐이다. 데모 산출물과 `demoReady`
+는 배포 러너에서 다시 정해지므로, 로컬에 데모가 없어도 상관없다.
+
 ---
 
-## 실측값 (flutter_table_plus 2.16.1)
+## 실측값 (flutter_table_plus, 2026-09 기준)
 
 | 단계 | 배포 용량 | 방문자 다운로드 |
 |---|---|---|
