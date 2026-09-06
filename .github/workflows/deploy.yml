@@ -88,6 +88,11 @@ jobs:
         shell: bash
         run: echo "key=$(shasum -a 256 web/src/content/packages.ts | cut -c1-16)" >> "$GITHUB_OUTPUT"
 
+      # 키에 run_id 를 넣어 실행마다 새 항목을 쓴다. GitHub 캐시 키는 **불변**
+      # 이라 같은 키로 덮어쓸 수 없다 — 한 번 잘못 저장된 항목(예: 데모가 하나도
+      # 없는 판)이 그 키에 눌러앉으면 이후 모든 배포가 그것을 복원하고, exact
+      # hit 이라 저장도 건너뛰어 영원히 나아지지 않는다. 실제로 그렇게 됐다.
+      # 복원은 접두사로 받으므로 늘 가장 최근 성공본이 온다.
       - name: 데모 캐시 복원
         id: demo-cache
         uses: actions/cache/restore@v4
@@ -95,8 +100,10 @@ jobs:
           path: |
             kihyun-opensource/web/public/demo
             kihyun-opensource/web/.demo-versions.json
-          key: demos-${{ steps.fingerprint.outputs.key }}
-          restore-keys: demos-
+          key: demos-${{ steps.fingerprint.outputs.key }}-${{ github.run_id }}
+          restore-keys: |
+            demos-${{ steps.fingerprint.outputs.key }}-
+            demos-
 
       # 형제 저장소를 태그로 받고, 낡은 데모만 다시 만든다. 캐시가 적중해도
       # 클론은 한다 — hasExample 이 그 실물로 정해지기 때문이다.
@@ -104,16 +111,17 @@ jobs:
         working-directory: kihyun-opensource
         run: node scripts/ci-build-demos.mjs ${{ (inputs.rebuild-all && '--all') || '' }}
 
-      # 빌드가 성공했을 때만 저장한다. 실패한 판을 캐시에 넣으면 다음 배포가
-      # 그 반쪽짜리 디렉터리를 신선한 것으로 받는다.
+      # 성공한 판만 저장한다. 실패한 판을 넣으면 다음 배포가 그 반쪽짜리
+      # 디렉터리를 신선한 것으로 받는다. 키가 실행마다 다르므로 cache-hit 을
+      # 조건으로 쓰지 않는다 — 그 조건이 위의 오염을 고착시킨 원인이었다.
       - name: 데모 캐시 저장
-        if: steps.demo-cache.outputs.cache-hit != 'true'
+        if: success()
         uses: actions/cache/save@v4
         with:
           path: |
             kihyun-opensource/web/public/demo
             kihyun-opensource/web/.demo-versions.json
-          key: demos-${{ steps.fingerprint.outputs.key }}
+          key: demos-${{ steps.fingerprint.outputs.key }}-${{ github.run_id }}
 
       # 두 번째 생성. 이제서야 demoReady 가 러너의 실물을 말한다.
       # 커밋된 값이 무엇이든 여기서 덮인다.
