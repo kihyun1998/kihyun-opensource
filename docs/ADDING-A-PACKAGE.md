@@ -22,6 +22,11 @@
 `scripts/gen-packages.mjs` 의 `CATEGORY` 에 한 줄 추가한다.
 아직 준비 안 된 패키지는 `PENDING` 에 두고, 준비되면 위로 옮긴다.
 
+> **한 번에 하나씩.** PENDING 에서 한 줄만 꺼내 이 절차를 끝까지 밟고,
+> 사이트에서 제대로 도는 것을 확인한 뒤에 다음 것을 꺼낸다. 여러 개를
+> 한꺼번에 올리면 무엇이 깨졌는지 가려내야 하고, 반쯤 만들어진 example 이
+> 섞여도 알아채기 어렵다. 목록을 채우는 것이 목적이 아니다.
+
 ```js
 const CATEGORY = {
   flutter_table_plus: 'ui',
