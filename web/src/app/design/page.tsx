@@ -233,7 +233,7 @@ export default function DesignSpec() {
             >
               <code className="text-label text-muted w-20 shrink-0 font-mono">{t.step}</code>
               <span className={`${t.cls} min-w-0 flex-1 truncate`}>
-                만져보고 고르는 Flutter 패키지
+                만든 것들 · 최근에 릴리스한 순서입니다
               </span>
               <span className="text-label text-muted shrink-0">{t.use}</span>
             </div>

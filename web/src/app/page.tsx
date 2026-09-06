@@ -91,15 +91,15 @@ export default function Home() {
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-6 py-16">
       <header className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-display font-bold text-balance">Flutter 패키지를 만듭니다.</h1>
+          <h1 className="text-display font-bold text-balance">만든 것들</h1>
           <ThemeToggle className="mt-2 shrink-0" />
         </div>
-        <p className="text-body text-muted max-w-(--container-measure) text-pretty">
-          위젯은 example 앱을 브라우저에 그대로 올려뒀습니다. 스크린샷으로는 스크롤이 부드러운지
-          키보드가 먹는지 알 수 없으니 직접 눌러보세요. 문서와 API 는 pub.dev 에 있습니다 — 여기서
-          복제하지 않습니다.
+        {/* 설명을 두지 않는다. 방문자는 왜 이렇게 만들었는지, 문서가 왜 여기
+            없는지를 묻지 않는다 — 그 답을 미리 늘어놓으면 변명처럼 읽힌다.
+            남길 정보는 정렬 기준과 "눌러볼 수 있다" 둘뿐이고 한 줄이면 된다. */}
+        <p className="text-small text-muted font-mono">
+          최근에 릴리스한 순서입니다. 위젯은 눌러볼 수 있습니다.
         </p>
-        <p className="text-small text-muted font-mono">최근에 릴리스한 순서입니다.</p>
       </header>
 
       <ol className="flex flex-col">
