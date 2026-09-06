@@ -48,8 +48,17 @@ const built = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) 
 const run = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, stdio: 'inherit' });
 const demoDir = (slug) => join(REPO, 'web', 'public', 'demo', slug);
 
-/** 데모를 만들 수 있는가. desktop/tool 은 원리적으로 불가능하다. */
-const demoable = (p) => p.category === 'ui' && p.hasExample;
+/**
+ * 데모를 만들 수 있는가. desktop/tool 은 원리적으로 불가능하다.
+ *
+ * **packages.ts 의 hasExample 을 믿지 않는다.** 그 값은 형제 저장소의
+ * example/lib 존재로 정해지는데, 이 워크플로에서 앞선 gen-packages 는 아직
+ * 아무것도 클론되지 않은 상태에서 돌기 때문에 전부 false 다. 그것을 읽으면
+ * 대상이 0개가 되어 데모 없는 사이트가 조용히 배포된다 — 실제로 그랬다.
+ * 클론을 마친 뒤의 실물이 유일하게 옳은 근거다.
+ */
+const demoable = (p) =>
+  p.category === 'ui' && existsSync(join(ROOT, p.slug, 'example', 'lib'));
 
 /** 이미 만들어 둔 것이 만들어야 할 것과 같고, 산출물이 실제로 있는가. */
 const isFresh = (pkg) =>
@@ -70,8 +79,8 @@ function ensureCheckout(pkg) {
 }
 
 // hasExample 은 pub.dev 가 모른다. 캐시 적중 여부와 무관하게 실물이 있어야 한다.
-const candidates = PACKAGES.filter((p) => p.category === 'ui');
-for (const pkg of candidates) ensureCheckout(pkg);
+// 아래 demoable 이 이 클론 결과를 읽으므로, 순서를 바꾸면 대상이 0개가 된다.
+for (const pkg of PACKAGES.filter((p) => p.category === 'ui')) ensureCheckout(pkg);
 
 const targets = PACKAGES.filter(demoable);
 const stale = targets.filter((p) => !isFresh(p));
