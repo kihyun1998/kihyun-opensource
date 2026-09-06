@@ -102,7 +102,7 @@ export function FlutterStage({ className = '' }: { className?: string }) {
         <div className="flex items-center gap-3 border-t border-white/10 px-3 py-1.5 font-mono text-[9px] text-white/40">
           <span>16.4 ms/frame</span>
           <span>60 fps</span>
-          <span className="ml-auto">CanvasKit</span>
+          <span className="ml-auto">Wasm</span>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { CATEGORY_LABEL, PACKAGES, canDemo, pubUrl, type Pkg } from '@/content/p
  *
  * 이 페이지의 일은 하나다 — 어느 것을 열지 고르게 하는 것.
  * 순수 정적 HTML 이라 즉시 칠해지고 색인된다. Flutter 엔진은 0개다.
- * (CanvasKit 은 캔버스에 그리므로 Flutter 로 만든 화면은 검색엔진에 한 글자도
+ * (Flutter 웹 엔진은 캔버스에 그리므로 그 화면은 검색엔진에 한 글자도
  * 남지 않는다. 유입은 전부 이 페이지가 감당한다.)
  *
  * 분류가 아니라 시간으로 세운다. 분류는 "이것이 무엇인가" 를 말하지만,

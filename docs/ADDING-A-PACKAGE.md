@@ -183,13 +183,50 @@ cd web && pnpm dev
 ## 배포
 
 `web/.gitignore` 가 `/public/demo/` 를 무시한다. 빌드 산출물은 커밋하지 않는다.
+패키지 15개면 최적화 후에도 약 110MB 라 히스토리가 감당하지 못한다.
 
-Vercel 은 빌드 환경에 Flutter 가 없으므로 다음 중 하나를 골라야 한다:
+그래서 **빌드를 전부 GitHub Actions 에서 한다.** Vercel 은 서빙만 한다 — 그쪽
+빌드 환경에는 Flutter 가 없어 데모 없는 사이트가 나가고, 우리 빌드의 마지막
+단계인 개발 전용 경로 제거도 돌지 않는다. 그래서 Vercel 프로젝트의 Git 연결은
+끊어 두었다. `vercel link` 가 그것을 자동으로 붙이므로 주의할 것.
 
-- **GitHub Actions** — Flutter 설치 → 데모 빌드 → Next 빌드 → Vercel CLI 배포
-- **산출물 커밋** — `.gitignore` 에서 빼고 커밋. 패키지가 늘면 히스토리가 부푼다
+### 두 워크플로
 
-패키지 15개 기준 최적화 후 약 110MB 이므로 Actions 쪽이 맞다. (아직 미구축)
+| 파일 | 언제 | 하는 일 |
+|---|---|---|
+| `.github/workflows/deploy.yml` | main 푸시 · 수동 · 감시가 호출 | 아래 순서 전부 |
+| `.github/workflows/watch-releases.yml` | 매일 06:00 KST · 수동 | pub.dev 와 비교, 다르면 배포 호출 |
+
+### 배포의 순서
+
+```
+Flutter 고정 설치
+  → gen-packages        ← pub.dev 에서 진짜 버전을 받는다
+  → ci-build-demos      ← 태그를 체크아웃하고 낡은 것만 다시 만든다
+  → gen-packages        ← demoReady 를 러너의 실물로 맞춘다
+  → 검사 · 정적 빌드
+  → .vercel/output 조립 → vercel deploy --prebuilt
+```
+
+**목록 생성이 두 번 도는 것이 핵심이다.** 커밋된 목록은 릴리스를 모르므로
+먼저 한 번 받아와야 무엇을 다시 만들지 판단할 수 있고, 데모를 앉힌 뒤에
+다시 돌려야 `demoReady` 가 러너의 실물을 말한다.
+
+### 감시가 하는 일
+
+커밋된 `packages.ts` 의 버전과 pub.dev 의 최신 버전을 견준다. 그것이 곧
+"지금 배포된 사이트가 말하고 있는 값" 이기 때문이다. 다른 것이 없으면 배포는
+아예 돌지 않는다. 기준은 **다름**이지 **높음**이 아니다 — 되돌린 릴리스도
+데모를 다시 만들어야 한다.
+
+pub.dev 에는 webhook 이 없고 패키지·퍼블리셔 단위 피드도 없어서 폴링이다.
+최대 지연은 하루다.
+
+### 처음 한 번: Vercel 연결
+
+`scripts/setup-vercel.sh` 를 돌리면 프로젝트를 만들고 `VERCEL_TOKEN` ·
+`VERCEL_ORG_ID` · `VERCEL_PROJECT_ID` 를 저장소 secrets 에 넣는다. 사람 손이
+필요한 것은 로그인 승인과 토큰 붙여넣기 둘뿐이다.
 
 ---
 
@@ -198,6 +235,10 @@ Vercel 은 빌드 환경에 Flutter 가 없으므로 다음 중 하나를 골라
 ```
 scripts/gen-packages.mjs           pub.dev → packages.ts (+ 로컬은 example 유무만)
 scripts/gen-packages.test.mjs      위 스크립트의 변환부 테스트 (pnpm test)
+scripts/check-releases.mjs         pub.dev 와 목록을 견준다 (감시 워크플로)
+scripts/check-releases.test.mjs    위 스크립트의 비교 로직 테스트
+scripts/ci-build-demos.mjs         CI 전용 — 태그 체크아웃 + 낡은 데모만 빌드
+scripts/setup-vercel.sh            처음 한 번 Vercel 연결 (secrets 3개)
 scripts/subset-example-fonts.py    example 폰트 부분집합
 scripts/build-demo.mjs             데모 빌드 + 정리 + 배치
 scripts/fetch-wanted-sans.mjs      사이트 본문 폰트 (사이트용, 패키지와 무관)

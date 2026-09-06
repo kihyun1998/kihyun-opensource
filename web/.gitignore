@@ -40,8 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Flutter 데모 빌드 산출물 (scripts/build-demos 로 재생성)
-# 배포 전략(커밋 vs CI 빌드)이 정해지면 이 줄을 조정한다.
+# Flutter 데모 빌드 산출물. 커밋하지 않는다 — 패키지당 수 MB 라 히스토리가 부푼다.
+# 배포는 CI 러너가 scripts/ci-build-demos.mjs 로 만들어 배포물에만 넣는다.
 /public/demo/
 
 # CI 가 데모 캐시 신선도를 판단하는 데 쓴다. 러너에서 만들어진다.

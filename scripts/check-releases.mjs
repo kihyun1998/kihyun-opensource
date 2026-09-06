@@ -6,12 +6,12 @@
 // 사용법
 //   node scripts/check-releases.mjs           # 사람이 읽는 출력
 //   node scripts/check-releases.mjs --github  # $GITHUB_OUTPUT 에 기록
-import { appendFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { appendFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const REPO = dirname(dirname(fileURLToPath(import.meta.url)));
-const PUB_API = "https://pub.dev/api/packages";
+const PUB_API = 'https://pub.dev/api/packages';
 
 /**
  * 이 스크립트의 테스트 seam.
@@ -42,25 +42,20 @@ export function changedSlugs(current, latest) {
 async function fetchLatest(slug) {
   const res = await fetch(`${PUB_API}/${slug}`);
   if (res.status === 404) return null;
-  if (!res.ok)
-    throw new Error(`pub.dev 조회 실패 (${slug}): HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`pub.dev 조회 실패 (${slug}): HTTP ${res.status}`);
   const { latest } = await res.json();
   if (!latest?.version) {
-    throw new Error(
-      `pub.dev 응답 모양이 다르다 (${slug}): latest.version 이 필요하다`,
-    );
+    throw new Error(`pub.dev 응답 모양이 다르다 (${slug}): latest.version 이 필요하다`);
   }
   return latest.version;
 }
 
-const isCli = process.argv[1] && process.argv[1].endsWith("check-releases.mjs");
+const isCli = process.argv[1] && process.argv[1].endsWith('check-releases.mjs');
 
 if (isCli) {
   // packages.ts 를 정규식으로 훑지 않고 그대로 읽는다. Node 24 가 타입을 벗겨 준다.
   // 파서를 두면 그것이 조용히 빈 목록을 내놓는 날 배포가 영영 돌지 않는다.
-  const { PACKAGES } = await import(
-    join(REPO, "web", "src", "content", "packages.ts")
-  );
+  const { PACKAGES } = await import(join(REPO, 'web', 'src', 'content', 'packages.ts'));
 
   const latest = {};
   for (const pkg of PACKAGES) {
@@ -71,22 +66,19 @@ if (isCli) {
 
   for (const pkg of PACKAGES) {
     const now = latest[pkg.slug];
-    const mark =
-      now == null ? "· 미배포" : now === pkg.version ? "  그대로" : "↑ 바뀜";
-    console.log(
-      `  ${mark}  ${pkg.slug.padEnd(28)} ${pkg.version} → ${now ?? "—"}`,
-    );
+    const mark = now == null ? '· 미배포' : now === pkg.version ? '  그대로' : '↑ 바뀜';
+    console.log(`  ${mark}  ${pkg.slug.padEnd(28)} ${pkg.version} → ${now ?? '—'}`);
   }
   console.log(
-    changed.length
-      ? `\n다시 만들 것 ${changed.length}개: ${changed.join(" ")}`
-      : "\n바뀐 것 없음.",
+    changed.length ? `\n다시 만들 것 ${changed.length}개: ${changed.join(' ')}` : '\n바뀐 것 없음.',
   );
 
-  if (process.argv.includes("--github") && process.env.GITHUB_OUTPUT) {
+  if (process.argv.includes('--github') && process.env.GITHUB_OUTPUT) {
     appendFileSync(
       process.env.GITHUB_OUTPUT,
-      `changed=${changed.join(" ")}\nany=${changed.length ? "true" : "false"}\n`,
+      // 배포 워크플로는 pub.dev 를 다시 읽어 스스로 판단하므로 목록은 넘기지
+      // 않는다. 여기서 나가는 것은 "깨울 것인가" 하나다.
+      `any=${changed.length ? 'true' : 'false'}\n`,
     );
   }
 }

@@ -87,11 +87,7 @@ function Instrument({ state }: { state: '대기' | '실행중' | '불가' }) {
     <div className="border-rule text-label flex h-9 items-center gap-3 border-b px-3 font-mono">
       {running ? <LiveDot /> : <span className="bg-muted size-1.5 rounded-full" />}
       <span className="text-muted">
-        {dead
-          ? '실행 불가'
-          : running
-            ? 'Running by Flutter 3.48.0 · CanvasKit'
-            : 'Flutter · 대기 중'}
+        {dead ? '실행 불가' : running ? 'Running by Flutter · WebAssembly' : 'Flutter · 대기 중'}
       </span>
       <span className="text-muted ml-auto flex gap-3">
         <span className={running ? '' : 'opacity-40'}>⛶ 전체화면</span>
@@ -144,7 +140,7 @@ const RULES = [
   },
   {
     rule: '데모는 클릭 후에 마운트한다',
-    why: 'Flutter 웹은 CanvasKit(MB 단위)을 받아야 첫 프레임이 나온다. 그 비용을 초기 로딩에 태우면 LCP 를 잃는다.',
+    why: 'Flutter 웹은 엔진(MB 단위)을 받아야 첫 프레임이 나온다. 그 비용을 초기 로딩에 태우면 LCP 를 잃는다.',
   },
   {
     rule: '테마의 초기값은 시스템이다',
@@ -152,7 +148,7 @@ const RULES = [
   },
   {
     rule: '런처는 순수 HTML 이다',
-    why: 'CanvasKit 은 캔버스에 그려서 검색엔진에 한 글자도 남기지 않는다. 유입은 전부 목록 페이지가 감당하므로, 여기에 Flutter 엔진을 띄우지 않는다.',
+    why: 'Flutter 웹 엔진은 캔버스에 그려서 검색엔진에 한 글자도 남기지 않는다. 유입은 전부 목록 페이지가 감당하므로, 여기에 Flutter 엔진을 띄우지 않는다.',
   },
 ] as const;
 
@@ -289,7 +285,7 @@ export default function DesignSpec() {
                 ▶
               </span>
               <span className="text-small font-medium">데모 실행</span>
-              <span className="text-label font-mono opacity-60">~1.5 MB · CanvasKit 내려받기</span>
+              <span className="text-label font-mono opacity-60">~1.3 MB · 엔진 내려받기</span>
             </div>
           </Specimen>
 
