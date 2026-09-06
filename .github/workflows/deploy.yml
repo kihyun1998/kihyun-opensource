@@ -1,0 +1,137 @@
+# 사이트를 만들어 Vercel 로 보낸다.
+#
+# 순서가 이 워크플로의 전부다. **데모를 배치한 뒤에 목록을 생성한다.**
+# demoReady 는 파일시스템에서 파생되므로, 이 순서라야 커밋된 값이 무엇이든
+# 러너의 실물이 이긴다. 값과 실물이 서로 다른 기계에서 정해지던 문제가
+# 여기서 구조적으로 사라진다.
+#
+# 빌드는 전부 여기서 한다. Vercel 은 서빙만 한다 — 그쪽 빌드 환경에는
+# Flutter 가 없어서 데모 없는 사이트가 나가고, 우리 빌드의 마지막 단계인
+# 개발 전용 경로 제거도 돌지 않는다. 그래서 프로젝트의 Git 연결은 끊어 두었다.
+name: 배포
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rebuild-all:
+        description: '데모를 전부 다시 만든다 (캐시 무시)'
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      rebuild-all:
+        type: boolean
+        default: false
+
+concurrency:
+  # 배포는 한 번에 하나만. 늦게 끝난 쪽이 이기는 경쟁을 막는다.
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  # 러너 기본값에 맡기지 않는다. 데모의 렌더러는 엔진 리비전이 들어간 공용
+  # CDN 주소에서 오므로, 버전을 고정하면 데모들이 같은 주소를 공유해
+  # 방문자 쪽 캐시 적중률도 함께 안정된다.
+  FLUTTER_VERSION: '3.47.1'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      # 패키지 저장소들이 이 저장소의 형제로 놓여야 한다. 스크립트가 경로를
+      # 자기 위치에서 뽑기 때문에, 하위 디렉터리로 체크아웃해야 ../<slug> 가 선다.
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v5
+        with:
+          path: kihyun-opensource
+
+      - name: Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: kihyun-opensource/web/pnpm-lock.yaml
+
+      - name: 의존성 설치
+        working-directory: kihyun-opensource/web
+        run: pnpm install --frozen-lockfile
+
+      # 데모 캐시. 키에 모든 패키지의 slug@version 이 들어가므로 어느 하나라도
+      # 오르면 키가 빗나가고, restore-keys 가 직전 배포본을 대신 내준다.
+      # 그 위에서 ci-build-demos.mjs 가 낡은 것만 골라 다시 만든다.
+      - name: 데모 캐시 복원
+        id: demo-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            kihyun-opensource/web/public/demo
+            kihyun-opensource/web/.demo-versions.json
+          key: demos-${{ hashFiles('kihyun-opensource/web/src/content/packages.ts') }}
+          restore-keys: demos-
+
+      - name: 데모 빌드
+        working-directory: kihyun-opensource
+        run: node scripts/ci-build-demos.mjs ${{ (inputs.rebuild-all && '--all') || '' }}
+
+      - name: 데모 캐시 저장
+        if: always() && steps.demo-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            kihyun-opensource/web/public/demo
+            kihyun-opensource/web/.demo-versions.json
+          key: demos-${{ hashFiles('kihyun-opensource/web/src/content/packages.ts') }}
+
+      # 여기가 순서의 핵심이다. 데모가 앉은 뒤라야 demoReady 가 참을 말한다.
+      - name: 패키지 목록 재생성
+        working-directory: kihyun-opensource
+        run: |
+          node scripts/gen-packages.mjs
+          git diff --stat -- web/src/content/packages.ts || true
+
+      - name: 검사
+        working-directory: kihyun-opensource/web
+        run: |
+          pnpm exec tsc --noEmit
+          pnpm exec eslint src
+          pnpm test
+
+      - name: 정적 빌드
+        working-directory: kihyun-opensource/web
+        run: pnpm build
+
+      # 사이트는 100% 정적이므로 Vercel 의 프레임워크 감지에 기대지 않고
+      # Build Output API 디렉터리를 직접 만든다. 그러면 Vercel 프로젝트의
+      # 빌드 설정이 무엇이든 이 결과가 그대로 서빙된다.
+      - name: 배포물 조립
+        working-directory: kihyun-opensource/web
+        run: |
+          rm -rf .vercel/output
+          mkdir -p .vercel/output
+          cp -r out .vercel/output/static
+          echo '{"version":3}' > .vercel/output/config.json
+          echo "static 파일 $(find .vercel/output/static -type f | wc -l)개 · $(du -sh .vercel/output/static | cut -f1)"
+          test ! -e .vercel/output/static/design || {
+            echo "::error::개발 전용 /design 이 배포물에 남아 있다"; exit 1; }
+
+      - name: Vercel 배포
+        working-directory: kihyun-opensource/web
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx --yes vercel@latest deploy --prebuilt --prod \
+            --archive=tgz --token "${{ secrets.VERCEL_TOKEN }}" \
+            >> "$GITHUB_STEP_SUMMARY"

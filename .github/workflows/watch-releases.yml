@@ -1,0 +1,43 @@
+# pub.dev 를 지켜보다가 릴리스가 있으면 배포를 깨운다.
+#
+# 왜 폴링인가
+# ----------
+# pub.dev 에는 webhook 이 없다. 공개 API 문서에 알림 엔드포인트가 없고,
+# 패키지 단위·퍼블리셔 단위 피드도 존재하지 않는다(둘 다 404, 전역 피드만 있다).
+# 각 패키지 저장소에서 이 저장소로 이벤트를 쏘는 방식은 저장소 스물 몇 곳에
+# 워크플로와 토큰을 심어야 해서 지금은 택하지 않는다. 나중에 릴리스가 잦은
+# 몇 개에만 얹으면 된다.
+#
+# 최대 지연은 하루다. 릴리스가 사이트에 하루 늦게 뜨는 것은 허용한다.
+name: 릴리스 감시
+
+on:
+  schedule:
+    - cron: '0 21 * * *' # 06:00 KST
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      any: ${{ steps.compare.outputs.any }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # 비교 기준은 커밋된 packages.ts 다. 그것이 곧 "지금 배포된 사이트가
+      # 말하고 있는 값" 이기 때문이다. 조회 실패(5xx·네트워크)는 여기서
+      # 워크플로를 세운다 — 낡은 값으로 조용히 지나가는 것이 더 나쁘다.
+      - name: pub.dev 와 비교
+        id: compare
+        run: node scripts/check-releases.mjs --github | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # 바뀐 것이 없으면 이 잡은 아예 돌지 않는다. 조용한 날의 비용은 위 잡 하나뿐이다.
+  deploy:
+    needs: check
+    if: needs.check.outputs.any == 'true'
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

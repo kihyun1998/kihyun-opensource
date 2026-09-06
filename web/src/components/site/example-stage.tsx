@@ -14,8 +14,6 @@ import { apiUrl, canDemo, pubUrl, type Pkg } from '@/content/packages';
  * prop 을 하나 더 넣고 싶어지는 순간이 곧 선을 넘는 순간이다.
  */
 
-const FLUTTER_VERSION = '3.48.0';
-
 function LiveDot() {
   return (
     <span className="relative flex size-1.5">
@@ -76,7 +74,7 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
           {!playable
             ? '실행 불가'
             : running
-              ? `Running by Flutter ${FLUTTER_VERSION} · CanvasKit`
+              ? 'Running by Flutter · WebAssembly'
               : 'Flutter · 대기 중'}
         </span>
 
@@ -114,7 +112,7 @@ export function ExampleStage({ pkg }: { pkg: Pkg }) {
               ▶
             </span>
             <span className="text-small font-medium">데모 실행</span>
-            <span className="text-label font-mono opacity-60">~1.5 MB · CanvasKit 내려받기</span>
+            <span className="text-label font-mono opacity-60">~1.3 MB · 엔진 내려받기</span>
           </button>
         ) : pkg.demoReady ? (
           <iframe

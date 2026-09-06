@@ -43,3 +43,6 @@ next-env.d.ts
 # Flutter 데모 빌드 산출물 (scripts/build-demos 로 재생성)
 # 배포 전략(커밋 vs CI 빌드)이 정해지면 이 줄을 조정한다.
 /public/demo/
+
+# CI 가 데모 캐시 신선도를 판단하는 데 쓴다. 러너에서 만들어진다.
+.demo-versions.json
